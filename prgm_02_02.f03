@@ -1,4 +1,4 @@
-      program prgm_02_01
+      program prgm_02_02
 !
 ! Arthur
 !     This program carries out calculation of 1D particle-in-a-box
@@ -13,50 +13,52 @@
 !     Variable Declarations
       implicit none
       integer::i,NCmdLineArgs
-      real::m,l,tMatrixElement,vMatrixElement,pi
+      real::m,l,vMatrixElement,b,pi
       parameter (pi = 3.14159)
-      real,external::PIB_1D_T_Element,PIB_1D_V_Element
+      real,external::PIB_1D_V_Element
       integer::n1,n2
       logical::fail
       character(len=1024)::cmd_buffer
 !
 !     Format Statements
 !
- 2000 format(1x,'Kinetic energy matrix element ',I5,',',I5,' is',F12.5, '.' ) 
- 9000 format(1x,'Expected 4 command line arguments, but found ',i2,'.')
+ 2000 format(1x,'Potential energy matrix element ',I5,',',I5,' is',F12.5, '.' ) 
+ 9000 format(1x,'Expected 5 command line arguments, but found ',i2,'.')
 !
 !
 !     Read in m, l, n1, and n2 from the command line.
 !
       NCmdLineArgs = command_argument_count()
-      if(NCmdLineArgs.ne.4) then
+      if(NCmdLineArgs.ne.5) then
         write(*,9000) NCmdLineArgs
         fail = .true.
       endIf
       if(fail) goto 999
       call Get_Command_Argument(1,cmd_buffer)
-      read(cmd_buffer,*) m
+      read(cmd_buffer,*) b
       call Get_Command_Argument(2,cmd_buffer)
-      read(cmd_buffer,*) l
+      read(cmd_buffer,*) m
       call Get_Command_Argument(3,cmd_buffer)
-      read(cmd_buffer,*) n1
+      read(cmd_buffer,*) l
       call Get_Command_Argument(4,cmd_buffer)
+      read(cmd_buffer,*) n1
+      call Get_Command_Argument(5,cmd_buffer)
       read(cmd_buffer,*) n2
 !
 !     Given the input parameters, evaluate the kinetic energy integral
 !     between
 !     particle-in-a-box eigenfunctions n1 and n2.
 !
-      tMatrixElement = PIB_1D_T_Element(l,n1,n2)
-      write(*,2000) n1,n2,tMatrixElement
+      vMatrixElement = PIB_1D_V_Element(b,l,n1,n2)
+      write(*,2000) n1,n2,vMatrixElement
 !
 !     The end of the job...
 !
   999 continue
-      end program prgm_02_01
+      end program prgm_02_02
 
 
-      real function PIB_1D_T_Element(l,n1,n2)
+      real function PIB_1D_V_Element(b,l,n1,n2)
 !
 !     This function evaluates the kinetic energy matrix element < n1 | T
 !     | n2 >,
@@ -67,7 +69,7 @@
 !
 !     Variable Declarations
       implicit none
-      real,intent(in)::l
+      real,intent(in)::b,l
       integer,intent(in)::n1,n2
       real::prefactor
 !
@@ -78,10 +80,9 @@
 !     these two different cases.
 !
       if(n1.eq.n2) then
-      PIB_1D_T_Element=((3.14159*n1)/4*l**2)*(-Sin(3.14159*2*n1)+2*3.14159*n1)
+      PIB_1D_V_Element=((-l)/(4*((3.14159)**2)*(n1**2))*(-1+Cos(2*3.14159*n1)+2*3.14159*n1*(Sin(2*3.14159*n1)-3.14159*n1)))
       else
-      PIB_1D_T_Element=0
+      PIB_1D_V_Element=b*(l/3.14**2)*((-1+Cos(3.14*(n1-n2))/((n1-n2)**2))+((1-Cos(3.14*(n1+n2)))/((n1+n2)**2)))
       endIf
 !
-      end function PIB_1D_T_Element
-!
+      end function PIB_1D_V_Element
