@@ -43,6 +43,7 @@
 !
       implicit none
       real,dimension(3,3),intent(in)::matrix
+      real,dimension(3,3) ::StdOut
       integer::i
 !
 !     Format statements.
@@ -53,7 +54,13 @@
 !
       write(*,*)' Printing Matrix'
 !
-      ADD CODE HERE
+      do i= 1,3
+               StdOut(3,i)=matrix(3,i)
+               StdOut(2,i)=matrix(2,i)
+               StdOut(1,i)=matrix(1,i)
+          endDo  
+      write(*,*)
+      write(*,1000) transpose(StdOut)
 !
 !
       return
